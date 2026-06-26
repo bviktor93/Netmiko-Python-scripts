@@ -1,0 +1,63 @@
+from netmiko import ConnectHandler
+from netmiko import NetmikoAuthenticationException
+from netmiko import NetmikoTimeoutException
+import getpass
+
+user = input("Enter your username: ")
+passwd = getpass.getpass("Enter your password: ")
+en = getpass.getpass("Enter your enable password: ")
+
+CSR1 = {
+    'device_type': 'cisco_xe',
+    'ip': '10.0.0.1',
+    'username': user,
+    'password': passwd,
+    'secret': en
+}
+
+CSR2 = {
+    'device_type': 'cisco_xe',
+    'ip': '10.0.0.2',
+    'username': user,
+    'password': passwd,
+    'secret': en
+}
+
+R3 = {
+    'device_type': 'cisco_ios',
+    'ip': '10.0.0.3',
+    'username': user,
+    'password': passwd,
+    'secret': en
+}
+
+routers = [CSR1, CSR2, R3]
+timeouterror = []
+autherror = []
+
+for device in routers:
+    try:
+        net_connect = ConnectHandler(**device)
+        net_connect.enable()
+        hostname = net_connect.send_command("show run | sec hostname").split()[1]
+        cmd = net_connect.send_config_from_file("ospf_config.cfg")
+        print("\n" + " " * 30 + f"Issuing the following commands on device {hostname}:")
+        print("-" * 90)
+        print(cmd)
+        net_connect.disconnect()
+    except NetmikoTimeoutException:
+        print(f"\n*** COULD NOT CONNECT TO DEVICE {device['ip']}, PLEASE VERIFY IP CONNECTIVITY ***")
+        timeouterror.append(device['ip'])
+        continue
+    except NetmikoAuthenticationException:
+        print(f"\n*** AUTHENTICATION FAILURE ON DEVICE {device['ip']}, PLEASE CHECK YOUR CREDENTIALS ***")
+        autherror.append(device['ip'])
+        continue
+
+if len(timeouterror) != 0:
+    print("\nCould not connect to the following devices, please check IP connectivity:")
+    print(timeouterror)
+
+if len(autherror) != 0:
+    print("\nAuthentication failure on the following devices, please check your credentials:")
+    print(autherror)
