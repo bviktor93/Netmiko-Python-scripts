@@ -1,0 +1,6 @@
+Value SEQ (\d+)
+Value NHOP (\S+)
+Value AS (\d+)
+
+Start
+  ^  ${SEQ} ${NHOP} (\[AS ${AS})? -> Record
