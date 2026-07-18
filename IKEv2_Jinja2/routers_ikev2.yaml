@@ -1,0 +1,24 @@
+---
+routers_list:
+    - hostname: CSR1
+      ip: 10.0.0.1
+      username: viktor
+      password: cisco
+      secret: cisco
+      device_type: cisco_xe
+      ike_peer_name: CSR2
+      ike_peer_address: 24.0.0.2 255.255.255.255
+      tunnel_src: 13.0.0.1
+      tunnel_dst: 24.0.0.2
+      tunnel_ip: 192.168.0.1 255.255.255.0
+    - hostname: CSR2
+      ip: 10.0.0.2
+      username: viktor
+      password: cisco
+      secret: cisco
+      device_type: cisco_xe
+      ike_peer_name: CSR1
+      ike_peer_address: 13.0.0.1 255.255.255.255
+      tunnel_src: 24.0.0.2
+      tunnel_dst: 13.0.0.1
+      tunnel_ip: 192.168.0.2 255.255.255.0

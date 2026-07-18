@@ -1,0 +1,34 @@
+crypto ikev2 proposal PROP1
+  encryption aes-cbc-256
+  integrity sha256
+  group 19
+crypto ikev2 policy POL1
+  proposal PROP1
+  match fvrf ISP
+crypto ikev2 keyring KEYRING1
+  peer CSR2
+    address 24.0.0.2 255.255.255.255
+    pre-shared-key cisco123
+crypto ikev2 profile IKEPROF1
+  match fvrf ISP
+  match identity remote address 24.0.0.2 255.255.255.255
+  authentication remote pre-share
+  authentication local pre-share
+  keyring local KEYRING1
+crypto ipsec transform-set TR1 ah-sha-hmac
+crypto ipsec profile IPSECPROF1
+  set transform-set TR1
+  set ikev2-profile IKEPROF1
+
+int tunnel0
+  tunnel vrf ISP
+  tunnel source 13.0.0.1
+  tunnel destination 24.0.0.2
+  vrf forwarding CUST1
+  ip address 192.168.0.1 255.255.255.0
+  ip mtu 1400
+  ip tcp adjust-mss 1360
+  tunnel protection ipsec profile IPSECPROF1
+  tunnel mode ipsec ipv4
+
+ip route vrf CUST1 0.0.0.0 0.0.0.0 tunnel0
